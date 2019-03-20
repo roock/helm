@@ -163,6 +163,7 @@ First, assume that the credentials are defined in the `values.yaml` file like so
 
 ```yaml
 imageCredentials:
+  name: quay-io-credentials
   registry: quay.io
   username: someone
   password: sillyness
@@ -182,10 +183,24 @@ Finally, we use the helper template in a larger template to create the Secret ma
 apiVersion: v1
 kind: Secret
 metadata:
-  name: myregistrykey
+  name: {{ .Values.imageCredentials.name }}
 type: kubernetes.io/dockerconfigjson
 data:
   .dockerconfigjson: {{ template "imagePullSecret" . }}
+```
+
+In the `templates/deployment.yml` you can now use the credentials:
+
+imagePullSecrets:
+```yaml
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    ....
+    ....
+  imagePullSecrets:
+  - name: {{ .Values.imageCredentials.name }}
 ```
 
 ## Automatically Roll Deployments When ConfigMaps or Secrets change
